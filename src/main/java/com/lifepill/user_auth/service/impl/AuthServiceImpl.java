@@ -206,8 +206,8 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        // Send password reset email
-        emailService.sendPasswordResetEmail(user.getEmail(), resetToken, user.getFirstName());
+        // Send password reset email synchronously to catch errors
+        emailService.sendPasswordResetEmailSync(user.getEmail(), resetToken, user.getFirstName());
 
         log.info("Password reset email sent to: {}", request.getEmail());
     }

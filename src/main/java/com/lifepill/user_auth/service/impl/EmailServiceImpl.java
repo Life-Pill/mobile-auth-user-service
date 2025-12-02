@@ -1,18 +1,19 @@
 package com.lifepill.user_auth.service.impl;
 
+import com.lifepill.user_auth.exception.EmailSendException;
 import com.lifepill.user_auth.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Implementation of EmailService for sending professional HTML emails.
@@ -25,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:}")
     private String fromEmail;
 
     @Value("${app.email.verification.url}")
@@ -46,8 +47,8 @@ public class EmailServiceImpl implements EmailService {
     private static final String BACKGROUND_COLOR = "#F8FAFC";
     private static final String WHITE = "#FFFFFF";
 
-    // LifePill Logo (Base64 encoded or URL)
-    private static final String LOGO_URL = "https://raw.githubusercontent.com/Life-Pill/mobile-auth-user-service/main/assets/lifepill-logo.png";
+    // LifePill Logo URL from GitHub repository
+    private static final String LOGO_URL = "https://raw.githubusercontent.com/Life-Pill/mobile-auth-user-service/main/src/main/resources/static/life-pill-logo.png";
     
     // LifePill Logo as Base64 SVG - Heart with plus sign in gradient circle (matching brand)
     private static final String LOGO_BASE64 = "data:image/svg+xml;base64," +
@@ -92,32 +93,52 @@ public class EmailServiceImpl implements EmailService {
     @Async
     public void sendPasswordResetEmail(String email, String token, String firstName) {
         try {
-            String subject = "Reset Your LifePill Password";
-            String resetLink = frontendUrl + "/reset-password?token=" + token;
-            
-            String htmlContent = buildEmailTemplate(
-                    firstName,
-                    "Reset Your Password",
-                    "We received a request to reset the password for your LifePill account. Click the button below to create a new password.",
-                    resetLink,
-                    "Reset Password",
-                    "This password reset link will expire in <strong>1 hour</strong> for security reasons.",
-                    "If you didn't request a password reset, please ignore this email. Your password will remain unchanged and your account is secure.",
-                    ""
-            );
-
-            sendHtmlEmail(email, subject, htmlContent);
-            log.info("Password reset email sent to: {}", email);
+            doSendPasswordResetEmail(email, token, firstName);
         } catch (Exception e) {
             log.error("Failed to send password reset email to: {}", email, e);
         }
     }
 
     @Override
+    public void sendPasswordResetEmailSync(String email, String token, String firstName) throws EmailSendException {
+        try {
+            doSendPasswordResetEmail(email, token, firstName);
+        } catch (MailException | MessagingException e) {
+            log.error("Failed to send password reset email to: {}", email, e);
+            throw EmailSendException.failedToSend("password reset", e);
+        } catch (Exception e) {
+            log.error("Unexpected error sending password reset email to: {}", email, e);
+            throw EmailSendException.failedToSend("password reset", e);
+        }
+    }
+
+    /**
+     * Internal method to send password reset email.
+     */
+    private void doSendPasswordResetEmail(String email, String token, String firstName) throws MessagingException {
+        String subject = "🔑 Reset Your LifePill Password";
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
+        
+        String htmlContent = buildEmailTemplate(
+                firstName,
+                "Reset Your Password",
+                "We received a request to reset the password for your LifePill account. Click the button below to create a new password.",
+                resetLink,
+                "Reset Password",
+                "This password reset link will expire in <strong>1 hour</strong> for security reasons.",
+                "If you didn't request a password reset, please ignore this email. Your password will remain unchanged and your account is secure.",
+                ""
+        );
+
+        sendHtmlEmail(email, subject, htmlContent);
+        log.info("Password reset email sent to: {}", email);
+    }
+
+    @Override
     @Async
     public void sendWelcomeEmail(String email, String firstName) {
         try {
-            String subject = " Welcome to LifePill - Locating Hope!";
+            String subject = "🎉 Welcome to LifePill - Locating Hope!";
             
             String htmlContent = buildWelcomeEmailTemplate(firstName);
 
@@ -125,6 +146,31 @@ public class EmailServiceImpl implements EmailService {
             log.info("Welcome email sent to: {}", email);
         } catch (Exception e) {
             log.error("Failed to send welcome email to: {}", email, e);
+        }
+    }
+
+    @Override
+    public void testEmailConfiguration(String email) throws EmailSendException {
+        try {
+            log.info("Testing email configuration by sending test email to: {}", email);
+            
+            String subject = "🧪 LifePill Email Configuration Test";
+            String htmlContent = buildEmailTemplate(
+                    "User",
+                    "Email Test Successful",
+                    "This is a test email to verify your LifePill email configuration is working correctly. If you received this email, your SMTP settings are configured properly!",
+                    frontendUrl,
+                    "Visit LifePill",
+                    "This is a <strong>test email</strong> - no action required.",
+                    "Your email configuration is working correctly.",
+                    ""
+            );
+
+            sendHtmlEmail(email, subject, htmlContent);
+            log.info("Test email sent successfully to: {}", email);
+        } catch (MailException | MessagingException e) {
+            log.error("Email configuration test failed: {}", e.getMessage(), e);
+            throw new EmailSendException("Email configuration test failed: " + e.getMessage(), e);
         }
     }
 
@@ -268,7 +314,7 @@ public class EmailServiceImpl implements EmailService {
                 WHITE, // main container bg
                 PRIMARY_GRADIENT_START, // header gradient start
                 PRIMARY_GRADIENT_END, // header gradient end
-                LOGO_BASE64, // logo image src
+                LOGO_URL, // logo image src from GitHub
                 WHITE, // LIFE text color
                 TEXT_COLOR, // greeting color
                 firstName, // name
@@ -401,7 +447,7 @@ public class EmailServiceImpl implements EmailService {
                 WHITE, // container bg
                 PRIMARY_GRADIENT_START, // header gradient start
                 PRIMARY_GRADIENT_END, // header gradient end
-                LOGO_BASE64, // logo image src
+                LOGO_URL, // logo image src from GitHub
                 WHITE, // welcome title color
                 TEXT_COLOR, // hi greeting color
                 firstName, // name

@@ -132,6 +132,21 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle email sending exceptions.
+     */
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEmailSendException(EmailSendException ex) {
+        log.error("Email send failed: {}", ex.getMessage());
+        
+        ApiResponse<Void> response = ApiResponse.error(
+                "EMAIL_SEND_FAILED",
+                ex.getMessage()
+        );
+        
+        return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    /**
      * Handle all other unhandled exceptions.
      */
     @ExceptionHandler(Exception.class)
