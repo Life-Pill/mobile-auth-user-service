@@ -1,7 +1,6 @@
 package com.lifepill.user_auth.mapper;
 
 import com.lifepill.user_auth.dto.request.AddressRequest;
-import com.lifepill.user_auth.dto.request.RegisterRequest;
 import com.lifepill.user_auth.dto.response.AddressResponse;
 import com.lifepill.user_auth.dto.response.AuthResponse;
 import com.lifepill.user_auth.dto.response.ProfileData;

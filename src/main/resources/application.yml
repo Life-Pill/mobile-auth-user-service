@@ -3,7 +3,7 @@ spring:
   application:
     name: MOBILE-USER-AUTH-SERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5432/mobile_user_auth_db
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mobile_user_auth_db}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -39,9 +39,9 @@ server:
 jwt:
   secret: ${JWT_SECRET}
   access-token:
-    expiration: 1800000 # 30 minutes
+    expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:1800000}
   refresh-token:
-      expiration: 604800000 # 7 days
+      expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
 
 # Application URLs
 app:
@@ -50,9 +50,15 @@ app:
   email:
     verification:
       url: ${EMAIL_VERIFICATION_URL:http://localhost:8080/api/auth/verify-email}
+      expiry-hours: ${EMAIL_VERIFICATION_EXPIRY_HOURS:24}
   password:
     reset:
       url: ${PASSWORD_RESET_URL:http://localhost:8080/api/auth/reset-password}
+      expiry-hours: ${PASSWORD_RESET_EXPIRY_HOURS:1}
+  branding:
+    logo-url: ${LOGO_URL:https://raw.githubusercontent.com/Life-Pill/mobile-auth-user-service/main/src/main/resources/static/life-pill-logo.png}
+    support-email: ${SUPPORT_EMAIL:support@lifepill.com}
+    website-url: ${WEBSITE_URL:https://lifepill.com}
 
 # Rate Limiting Configuration
 rate:

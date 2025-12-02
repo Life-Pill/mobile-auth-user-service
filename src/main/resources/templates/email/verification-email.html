@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifePill - Verify Your Email</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #F8FAFC;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 40px 0;">
+                <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%); padding: 40px 40px 30px 40px; text-align: center;">
+                            <!-- LifePill Logo -->
+                            <div style="margin: 0 auto 20px auto;">
+                                <img src="{{logoUrl}}" alt="LifePill Logo" width="100" height="100" style="display: block; margin: 0 auto; border-radius: 50%; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);" />
+                            </div>
+                            <!-- Brand Name -->
+                            <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: 1px;">
+                                <span style="color: #FFFFFF;">LIFE</span><span style="color: #1E3A5F;">PILL</span>
+                            </h1>
+                            <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.95); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; font-weight: 500;">
+                                Locating Hope
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <!-- Greeting -->
+                            <h2 style="margin: 0 0 8px 0; color: #333333; font-size: 24px; font-weight: 600;">
+                                Hello, {{firstName}}! 👋
+                            </h2>
+                            <h3 style="margin: 0 0 24px 0; color: #00B4D8; font-size: 18px; font-weight: 500;">
+                                Verify Your Email
+                            </h3>
+                            
+                            <!-- Message -->
+                            <p style="margin: 0 0 32px 0; color: #666666; font-size: 15px; line-height: 1.7;">
+                                Welcome to LifePill! We're excited to have you on board. Please verify your email address to activate your account and start your journey with us.
+                            </p>
+                            
+                            <!-- CTA Button -->
+                            <table role="presentation" style="width: 100%; margin-bottom: 32px;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <a href="{{verifyLink}}" style="display: inline-block; padding: 16px 48px; background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%); color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 50px; box-shadow: 0 4px 16px rgba(0, 180, 216, 0.4); transition: all 0.3s ease;">
+                                            Verify Email Address
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Link fallback -->
+                            <p style="margin: 0 0 24px 0; color: #666666; font-size: 13px; text-align: center;">
+                                Or copy and paste this link in your browser:<br>
+                                <a href="{{verifyLink}}" style="color: #00B4D8; word-break: break-all;">{{verifyLink}}</a>
+                            </p>
+                            
+                            <!-- Expiry Note -->
+                            <div style="background-color: #FFF8E1; border-left: 4px solid #FFC107; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                                <p style="margin: 0; color: #856404; font-size: 14px;">
+                                    ⏰ This verification link will expire in <strong>{{expiryHours}} hours</strong>.
+                                </p>
+                            </div>
+                            
+                            <!-- Security Note -->
+                            <div style="background-color: #E3F2FD; border-left: 4px solid #00B4D8; padding: 16px; border-radius: 8px;">
+                                <p style="margin: 0; color: #1565C0; font-size: 14px;">
+                                    🔒 If you didn't create an account with LifePill, you can safely ignore this email.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #F8FAFC; padding: 32px 40px; border-top: 1px solid #E2E8F0;">
+                            <table role="presentation" style="width: 100%;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <!-- Social Links -->
+                                        <p style="margin: 0 0 16px 0;">
+                                            <a href="{{websiteUrl}}" style="display: inline-block; margin: 0 8px; color: #00B4D8; text-decoration: none;">
+                                                <span style="font-size: 20px;">🌐</span>
+                                            </a>
+                                        </p>
+                                        
+                                        <p style="margin: 0 0 8px 0; color: #666666; font-size: 13px;">
+                                            Need help? Contact us at <a href="mailto:{{supportEmail}}" style="color: #00B4D8; text-decoration: none;">{{supportEmail}}</a>
+                                        </p>
+                                        
+                                        <p style="margin: 0; color: #94A3B8; font-size: 12px;">
+                                            © {{currentYear}} LifePill. All rights reserved.<br>
+                                            Locating Hope, One Pill at a Time.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

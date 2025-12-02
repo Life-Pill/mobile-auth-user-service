@@ -119,8 +119,6 @@ public class RateLimiterConfig {
             k -> new BucketWrapper(createBucket(loginUserAttempts, loginDurationMinutes))).bucket;
     }
 
-    // ==================== Registration Rate Limiting ====================
-
     /**
      * Check if a registration attempt is allowed using dual-layer rate limiting.
      * Both IP and email limits must pass.
@@ -159,8 +157,6 @@ public class RateLimiterConfig {
         return registerEmailBuckets.computeIfAbsent(email.toLowerCase(), 
             k -> new BucketWrapper(createBucket(registerEmailAttempts, registerDurationMinutes))).bucket;
     }
-
-    // ==================== Password Reset Rate Limiting ====================
 
     /**
      * Check if a password reset attempt is allowed.
