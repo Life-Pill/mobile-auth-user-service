@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/${api.version:v1}/user")
 @RequiredArgsConstructor
 @Tag(name = "User Profile", description = "User profile management endpoints")
 @SecurityRequirement(name = "bearerAuth")

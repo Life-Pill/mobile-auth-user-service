@@ -4,6 +4,7 @@ import com.lifepill.user_auth.security.CustomUserDetailsService;
 import com.lifepill.user_auth.security.JwtAuthenticationEntryPoint;
 import com.lifepill.user_auth.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,20 +36,8 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CustomUserDetailsService userDetailsService;
 
-    /**
-     * Public endpoints that don't require authentication.
-     */
-    private static final String[] PUBLIC_ENDPOINTS = {
-            "/auth/register",
-            "/auth/login",
-            "/auth/google",
-            "/auth/google/status",
-            "/auth/forgot-password",
-            "/auth/reset-password",
-            "/auth/verify-email",
-            "/auth/resend-verification",
-            "/auth/refresh-token"
-    };
+    @Value("${api.version:v1}")
+    private String apiVersion;
 
     /**
      * Swagger/OpenAPI endpoints.
@@ -62,10 +51,32 @@ public class SecurityConfig {
     };
 
     /**
+     * Get public auth endpoints with API version prefix.
+     */
+    private String[] getPublicAuthEndpoints() {
+        String prefix = "/" + apiVersion + "/auth";
+        return new String[] {
+                prefix + "/register",
+                prefix + "/login",
+                prefix + "/google",
+                prefix + "/google/status",
+                prefix + "/forgot-password",
+                prefix + "/reset-password",
+                prefix + "/verify-email",
+                prefix + "/resend-verification",
+                prefix + "/refresh-token"
+        };
+    }
+
+    /**
      * Configure the security filter chain.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String[] publicEndpoints = getPublicAuthEndpoints();
+        String verifyEmailPath = "/" + apiVersion + "/auth/verify-email";
+        String googleStatusPath = "/" + apiVersion + "/auth/google/status";
+        
         http
                 // Disable CSRF for stateless JWT authentication
                 .csrf(AbstractHttpConfigurer::disable)
@@ -83,9 +94,9 @@ public class SecurityConfig {
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
                         // Allow public endpoints
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/verify-email").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/auth/google/status").permitAll()
+                        .requestMatchers(HttpMethod.POST, publicEndpoints).permitAll()
+                        .requestMatchers(HttpMethod.GET, verifyEmailPath).permitAll()
+                        .requestMatchers(HttpMethod.GET, googleStatusPath).permitAll()
                         // Allow Swagger/OpenAPI endpoints
                         .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
                         // Allow OPTIONS for CORS preflight
