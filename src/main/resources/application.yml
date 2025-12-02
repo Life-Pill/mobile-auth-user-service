@@ -1,0 +1,111 @@
+# Application Configuration
+spring:
+  application:
+    name: MOBILE-USER-AUTH-SERVICE
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mobile_user_auth_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Prami@3990}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+        hibernate:
+            format_sql: true
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:pramithamj.me@gmail.com}
+    password: ${MAIL_PASSWORD:fsiibuakmasiqqun}
+    properties:
+        mail:
+            smtp:
+                auth: true
+                starttls:
+                    enable: true
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /api
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationThatShouldBeAtLeast256BitsLong}
+  access-token:
+    expiration: 1800000 # 30 minutes
+  refresh-token:
+      expiration: 604800000 # 7 days
+
+# Application URLs
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
+  email:
+    verification:
+      url: ${EMAIL_VERIFICATION_URL:http://localhost:8080/api/auth/verify-email}
+  password:
+    reset:
+      url: ${PASSWORD_RESET_URL:http://localhost:8080/api/auth/reset-password}
+
+# Rate Limiting Configuration
+rate:
+  limit:
+    login:
+      attempts: 5           # IP-based: max login attempts per IP
+      duration-minutes: 15
+      user-attempts: 10     # User-based: max login attempts per email (more lenient for shared networks)
+    register:
+        attempts: 3         # IP-based: max registration attempts per IP
+        duration-minutes: 60
+        email-attempts: 5   # Email-based: max registration attempts per email
+    password-reset:
+        attempts: 3
+        duration-minutes: 60
+
+# Logging Configuration
+logging:
+    level:
+        com:
+            lifepill: DEBUG
+        org:
+            springframework:
+                security: DEBUG
+    pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# CORS Configuration
+cors:
+  enabled: ${CORS_ENABLED:true}
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:8081}
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: Authorization,Content-Type
+  max-age: 86400
+
+# Google OAuth Configuration
+google:
+    oauth:
+      enabled: ${GOOGLE_OAUTH_ENABLED:false}
+      client-id:
+          web: ${GOOGLE_CLIENT_ID_WEB:}
+          android: ${GOOGLE_CLIENT_ID_ANDROID:}
+          ios: ${GOOGLE_CLIENT_ID_IOS:}
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+    filter: true
+    doc-expansion: none

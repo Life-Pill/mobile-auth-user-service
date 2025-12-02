@@ -8,11 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Optional;
 
 /**
@@ -25,7 +28,6 @@ import java.util.Optional;
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenExpirationMs;
@@ -33,8 +35,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public RefreshToken createRefreshToken(User user, String tokenValue) {
-        // Hash the token for storage
-        String tokenHash = passwordEncoder.encode(tokenValue);
+        // Hash the token using SHA-256 (JWT tokens are too long for BCrypt's 72-byte limit)
+        String tokenHash = hashToken(tokenValue);
 
         // Calculate expiration
         LocalDateTime expiresAt = LocalDateTime.now()
@@ -53,23 +55,16 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional(readOnly = true)
     public Optional<RefreshToken> findValidToken(String tokenValue) {
-        // We need to find all non-revoked, non-expired tokens and check the hash
-        // This is a simplified approach - in production, you might use a different strategy
-        return refreshTokenRepository.findAll().stream()
-                .filter(token -> !token.getRevoked())
-                .filter(token -> !token.isExpired())
-                .filter(token -> passwordEncoder.matches(tokenValue, token.getTokenHash()))
-                .findFirst();
+        String tokenHash = hashToken(tokenValue);
+        return refreshTokenRepository.findValidByTokenHash(tokenHash, LocalDateTime.now());
     }
 
     @Override
     @Transactional
     public void revokeToken(String tokenValue) {
-        findValidToken(tokenValue).ifPresent(token -> {
-            token.setRevoked(true);
-            refreshTokenRepository.save(token);
-            log.info("Refresh token revoked for user: {}", token.getUser().getId());
-        });
+        String tokenHash = hashToken(tokenValue);
+        refreshTokenRepository.revokeByTokenHash(tokenHash);
+        log.info("Refresh token revoked");
     }
 
     @Override
@@ -85,5 +80,22 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public void cleanupExpiredTokens() {
         refreshTokenRepository.deleteExpiredAndRevoked(LocalDateTime.now());
         log.info("Cleaned up expired and revoked refresh tokens");
+    }
+
+    /**
+     * Hash a token using SHA-256.
+     * This is used instead of BCrypt because JWT tokens exceed BCrypt's 72-byte limit.
+     *
+     * @param token the token to hash
+     * @return the SHA-256 hash encoded as Base64
+     */
+    private String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not available", e);
+        }
     }
 }

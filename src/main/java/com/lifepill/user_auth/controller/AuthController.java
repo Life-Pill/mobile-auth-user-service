@@ -75,8 +75,9 @@ public class AuthController {
     ) {
         String clientIp = getClientIp(httpRequest);
         
-        if (!rateLimiterConfig.allowRegisterAttempt(clientIp)) {
-            log.warn("Rate limit exceeded for registration from IP: {}", clientIp);
+        // Dual-layer rate limiting: IP + Email
+        if (!rateLimiterConfig.allowRegisterAttempt(clientIp, request.getEmail())) {
+            log.warn("Rate limit exceeded for registration from IP: {} or email: {}", clientIp, request.getEmail());
             throw new RateLimitExceededException("Too many registration attempts. Please try again later.");
         }
 
@@ -121,8 +122,9 @@ public class AuthController {
     ) {
         String clientIp = getClientIp(httpRequest);
         
-        if (!rateLimiterConfig.allowLoginAttempt(clientIp)) {
-            log.warn("Rate limit exceeded for login from IP: {}", clientIp);
+        // Dual-layer rate limiting: IP + Email
+        if (!rateLimiterConfig.allowLoginAttempt(clientIp, request.getEmail())) {
+            log.warn("Rate limit exceeded for login from IP: {} or email: {}", clientIp, request.getEmail());
             throw new RateLimitExceededException("Too many login attempts. Please try again later.");
         }
 
@@ -165,7 +167,9 @@ public class AuthController {
     ) {
         String clientIp = getClientIp(httpRequest);
         
-        if (!rateLimiterConfig.allowLoginAttempt(clientIp)) {
+        // For Google Sign-In, we only have IP until token is verified
+        // Using a placeholder for email check - actual email comes from Google token
+        if (!rateLimiterConfig.allowLoginAttempt(clientIp, "google-oauth:" + clientIp)) {
             log.warn("Rate limit exceeded for Google Sign-In from IP: {}", clientIp);
             throw new RateLimitExceededException("Too many login attempts. Please try again later.");
         }
@@ -220,10 +224,14 @@ public class AuthController {
     })
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(
-            @Valid @RequestBody ForgotPasswordRequest request
+            @Valid @RequestBody ForgotPasswordRequest request,
+            HttpServletRequest httpRequest
     ) {
-        if (!rateLimiterConfig.allowPasswordResetAttempt(request.getEmail())) {
-            log.warn("Rate limit exceeded for password reset for email: {}", request.getEmail());
+        String clientIp = getClientIp(httpRequest);
+        
+        // Dual-layer rate limiting: IP + Email
+        if (!rateLimiterConfig.allowPasswordResetAttempt(clientIp, request.getEmail())) {
+            log.warn("Rate limit exceeded for password reset from IP: {} or email: {}", clientIp, request.getEmail());
             throw new RateLimitExceededException("Too many password reset attempts. Please try again later.");
         }
 
