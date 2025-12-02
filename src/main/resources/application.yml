@@ -4,8 +4,8 @@ spring:
     name: MOBILE-USER-AUTH-SERVICE
   datasource:
     url: jdbc:postgresql://localhost:5432/mobile_user_auth_db
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Prami@3990}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -22,8 +22,8 @@ spring:
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:pramithamj.me@gmail.com}
-    password: ${MAIL_PASSWORD:fsiibuakmasiqqun}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
         mail:
             smtp:
@@ -37,7 +37,7 @@ server:
     context-path: /api
 
 jwt:
-  secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationThatShouldBeAtLeast256BitsLong}
+  secret: ${JWT_SECRET}
   access-token:
     expiration: 1800000 # 30 minutes
   refresh-token:
