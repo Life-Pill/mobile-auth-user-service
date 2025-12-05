@@ -204,4 +204,4 @@ springdoc:
 # Swagger Server Configuration
 swagger:
   server:
-    url: ${SWAGGER_SERVER_URL:http://34.9.86.185:8080/api}
+    url: ${SWAGGER_SERVER_URL:}

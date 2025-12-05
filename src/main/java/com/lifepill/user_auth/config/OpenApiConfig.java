@@ -27,11 +27,22 @@ public class OpenApiConfig {
     @Value("${server.servlet.context-path:/api}")
     private String contextPath;
 
+    @Value("${swagger.server.url:}")
+    private String swaggerServerUrl;
+
     @Bean
     public OpenAPI lifePillOpenAPI() {
+        // Use swagger.server.url if provided, otherwise fallback to localhost
+        String primaryServerUrl = (swaggerServerUrl != null && !swaggerServerUrl.isEmpty()) 
+                ? swaggerServerUrl 
+                : "http://localhost:" + serverPort + contextPath;
+        
         return new OpenAPI()
                 .info(apiInfo())
                 .servers(List.of(
+                        new Server()
+                                .url(primaryServerUrl)
+                                .description("Primary Server"),
                         new Server()
                                 .url("http://localhost:" + serverPort + contextPath)
                                 .description("Local Development Server"),
