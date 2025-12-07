@@ -56,7 +56,7 @@ public class SecurityConfig {
      * Get public auth endpoints with API version prefix.
      */
     private String[] getPublicAuthEndpoints() {
-        String prefix = "/" + apiVersion + "/auth";
+        String prefix = "/" + apiVersion + "/user/auth";
         return new String[] {
                 prefix + "/register",
                 prefix + "/login",
@@ -76,8 +76,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String[] publicEndpoints = getPublicAuthEndpoints();
-        String verifyEmailPath = "/" + apiVersion + "/auth/verify-email";
-        String googleStatusPath = "/" + apiVersion + "/auth/google/status";
+        String verifyEmailPath = "/" + apiVersion + "/user/auth/verify-email";
+        String googleStatusPath = "/" + apiVersion + "/user/auth/google/status";
         
         http
                 // Enable CORS with configuration source

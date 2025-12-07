@@ -129,11 +129,11 @@ app:
     url: ${FRONTEND_URL:http://localhost:3000}
   email:
     verification:
-      url: ${EMAIL_VERIFICATION_URL:http://35.208.197.159:8080/api/${api.version}/auth/verify-email}
+      url: ${EMAIL_VERIFICATION_URL:http://35.208.197.159:8080/api/${api.version}/user/auth/verify-email}
       expiry-hours: ${EMAIL_VERIFICATION_EXPIRY_HOURS:24}
   password:
     reset:
-      url: ${PASSWORD_RESET_URL:http://35.208.197.159:8080/api/${api.version}/auth/reset-password}
+      url: ${PASSWORD_RESET_URL:http://35.208.197.159:8080/api/${api.version}/user/auth/reset-password}
       expiry-hours: ${PASSWORD_RESET_EXPIRY_HOURS:1}
   branding:
     logo-url: ${LOGO_URL:https://raw.githubusercontent.com/Life-Pill/mobile-auth-user-service/main/src/main/resources/static/life-pill-logo.png}
@@ -205,4 +205,5 @@ springdoc:
 # Swagger Server Configuration
 swagger:
   server:
-    url: ${SWAGGER_SERVER_URL:}
+    url: ${SWAGGER_SERVER_URL:http://35.208.197.159:8080/api}
+

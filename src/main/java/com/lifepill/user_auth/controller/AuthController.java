@@ -7,6 +7,7 @@ import com.lifepill.user_auth.dto.response.AuthResponse;
 import com.lifepill.user_auth.dto.response.TokenResponse;
 import com.lifepill.user_auth.exception.RateLimitExceededException;
 import com.lifepill.user_auth.service.AuthService;
+import com.lifepill.user_auth.service.EmailTemplateService;
 import com.lifepill.user_auth.service.GoogleOAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @RestController
-@RequestMapping("/${api.version:v1}/auth")
+@RequestMapping("/${api.version:v1}/user/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Authentication and authorization endpoints for user management")
 public class AuthController {
@@ -36,6 +37,7 @@ public class AuthController {
     private final AuthService authService;
     private final RateLimiterConfig rateLimiterConfig;
     private final GoogleOAuthService googleOAuthService;
+    private final EmailTemplateService emailTemplateService;
 
     /**
      * Register a new user.
@@ -310,15 +312,32 @@ public class AuthController {
             summary = "Verify email via link",
             description = "Verifies email using token from query parameter (used for email verification links)"
     )
-    @GetMapping("/verify-email")
-    public ResponseEntity<ApiResponse<Void>> verifyEmailGet(
+    @GetMapping(value = "/verify-email", produces = "text/html")
+    public ResponseEntity<String> verifyEmailViaLink(
             @Parameter(description = "Email verification token") @RequestParam String token
     ) {
         log.info("Email verification request received via GET");
-        VerifyEmailRequest request = new VerifyEmailRequest(token);
-        authService.verifyEmail(request);
-        
-        return ResponseEntity.ok(ApiResponse.success("Email verified successfully"));
+        try {
+            VerifyEmailRequest request = new VerifyEmailRequest(token);
+            authService.verifyEmail(request);
+            
+            // Generate success HTML using template service
+            String html = emailTemplateService.generateEmailVerificationSuccess();
+            
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/html; charset=UTF-8")
+                    .body(html);
+                    
+        } catch (Exception e) {
+            log.error("Email verification failed: {}", e.getMessage());
+            
+            // Generate error HTML using template service
+            String html = emailTemplateService.generateEmailVerificationError(e.getMessage());
+            
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "text/html; charset=UTF-8")
+                    .body(html);
+        }
     }
 
     /**
