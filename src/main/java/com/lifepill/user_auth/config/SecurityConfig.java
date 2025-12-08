@@ -21,11 +21,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * Security configuration for the application.
  * Configures JWT authentication, authorization rules, and security filters.
+ * NOTE: CORS is handled by API Gateway only - no CORS config here.
  */
 @Configuration
 @EnableWebSecurity
@@ -36,7 +36,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CustomUserDetailsService userDetailsService;
-    private final CorsConfigurationSource corsConfigurationSource;
 
     @Value("${api.version:v1}")
     private String apiVersion;
@@ -80,8 +79,8 @@ public class SecurityConfig {
         String googleStatusPath = "/" + apiVersion + "/user/auth/google/status";
         
         http
-                // Enable CORS with configuration source
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                // CORS is handled by API Gateway - disabled here
+                .cors(cors -> cors.disable())
                 
                 // Disable CSRF for stateless JWT authentication
                 .csrf(AbstractHttpConfigurer::disable)
