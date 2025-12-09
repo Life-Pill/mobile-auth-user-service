@@ -265,6 +265,7 @@ public ResponseEntity<String> resetPasswordPage(@RequestParam String token) {
         
         return ResponseEntity.ok()
                 .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                .header("Content-Security-Policy", "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; connect-src 'self' http://35.208.197.159:9191;")
                 .body(htmlContent);
     } catch (Exception e) {
         log.error("Failed to load reset password page", e);
@@ -298,9 +299,17 @@ public ResponseEntity<String> resetPasswordPage(@RequestParam String token) {
             @Valid @RequestBody ResetPasswordRequest request
     ) {
         log.info("Reset password request received");
-        authService.resetPassword(request);
-        
-        return ResponseEntity.ok(ApiResponse.success("Password reset successfully"));
+        try {
+            authService.resetPassword(request);
+            return ResponseEntity.ok(ApiResponse.success("Password reset successfully"));
+        } catch (com.lifepill.user_auth.exception.InvalidTokenException e) {
+            log.warn("Invalid token during password reset: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, e.getMessage()));
+        } catch (Exception e) {
+            log.error("Failed to reset password", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(500, "An unexpected error occurred: " + e.getMessage()));
+        }
     }
 
     /**
