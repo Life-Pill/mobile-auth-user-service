@@ -126,7 +126,7 @@ jwt:
 # Application URLs
 app:
   frontend:
-    url: ${FRONTEND_URL:http://localhost:3000}
+    url: ${FRONTEND_URL:http://35.208.197.159:9191/api/v1/user/auth}
   email:
     verification:
       url: ${EMAIL_VERIFICATION_URL:http://35.208.197.159:8080/api/${api.version}/user/auth/verify-email}

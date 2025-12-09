@@ -242,6 +242,37 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Password reset email sent. Please check your inbox."));
     }
 
+/**
+ * Serve reset password HTML page.
+ * Reads the static HTML file and serves it directly to avoid redirect issues through API Gateway.
+ * 
+ * @param token the reset token (preserved in URL for JavaScript to use)
+ * @return the HTML content
+ */
+@GetMapping(value = "/reset-password", produces = "text/html")
+public ResponseEntity<String> resetPasswordPage(@RequestParam String token) {
+    try {
+        // Read the static HTML file from classpath
+        org.springframework.core.io.Resource resource = 
+            new org.springframework.core.io.ClassPathResource("static/reset-password.html");
+        
+        String htmlContent = new String(
+            java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(resource.getURI())
+            ),
+            java.nio.charset.StandardCharsets.UTF_8
+        );
+        
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                .body(htmlContent);
+    } catch (Exception e) {
+        log.error("Failed to load reset password page", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("<html><body><h1>Error loading page</h1><p>Please try again later.</p></body></html>");
+    }
+}
+
     /**
      * Reset password using token.
      *

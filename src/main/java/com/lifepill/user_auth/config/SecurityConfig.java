@@ -101,6 +101,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, publicEndpoints).permitAll()
                         .requestMatchers(HttpMethod.GET, verifyEmailPath).permitAll()
                         .requestMatchers(HttpMethod.GET, googleStatusPath).permitAll()
+                        // Allow static resources (reset password HTML page) with full path
+                        .requestMatchers(HttpMethod.GET, "/" + apiVersion + "/user/auth/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/reset-password.html", "/reset-password").permitAll()
                         // Allow Swagger/OpenAPI endpoints
                         .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
                         // Allow OPTIONS for CORS preflight
