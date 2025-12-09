@@ -20,10 +20,20 @@ public class SecurityHeadersFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         
+        jakarta.servlet.http.HttpServletRequest httpRequest = (jakarta.servlet.http.HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         
+        String requestUri = httpRequest.getRequestURI();
+        
         // Add security headers
-        httpResponse.setHeader("Content-Security-Policy", "default-src 'self'");
+        if (requestUri.contains("/user/auth/reset-password") || requestUri.endsWith("/reset-password.html")) {
+            // Relaxed CSP for reset password page (needs inline styles/scripts)
+            httpResponse.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; connect-src 'self' http://35.208.197.159:9191;");
+        } else {
+            // Strict CSP for other endpoints
+            httpResponse.setHeader("Content-Security-Policy", "default-src 'self'");
+        }
+        
         httpResponse.setHeader("X-Content-Type-Options", "nosniff");
         httpResponse.setHeader("X-Frame-Options", "DENY");
         httpResponse.setHeader("X-XSS-Protection", "1; mode=block");
