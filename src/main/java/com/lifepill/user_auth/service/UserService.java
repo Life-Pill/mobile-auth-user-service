@@ -27,4 +27,12 @@ public interface UserService {
      * @return the updated user profile response
      */
     UserProfileResponse updateProfile(UUID userId, UpdateProfileRequest request);
+
+    /**
+     * Delete user account.
+     * This will permanently delete the user and all associated data.
+     *
+     * @param userId the user ID
+     */
+    void deleteAccount(UUID userId);
 }

@@ -107,4 +107,39 @@ public class UserController {
         
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", profile));
     }
+
+    /**
+     * Delete current user's account.
+     * This is a permanent action that cannot be undone.
+     *
+     * @param userPrincipal the authenticated user
+     * @return success response
+     */
+    @Operation(
+            summary = "Delete user account",
+            description = "Permanently deletes the authenticated user's account and all associated data (addresses, sessions, etc.). This action cannot be undone."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "Account deleted successfully"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid or missing JWT token"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "User not found"
+            )
+    })
+    @DeleteMapping("/account")
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        log.info("Delete account request for user: {}", userPrincipal.getId());
+        userService.deleteAccount(userPrincipal.getId());
+        
+        return ResponseEntity.ok(ApiResponse.success("Account deleted successfully", null));
+    }
 }

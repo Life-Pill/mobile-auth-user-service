@@ -100,4 +100,18 @@ public class UserServiceImpl implements UserService {
             user.addAddress(newAddress);
         }
     }
+
+    @Override
+    @Transactional
+    public void deleteAccount(UUID userId) {
+        log.info("Deleting account for user: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId.toString()));
+
+        // Delete the user (cascades to addresses and refresh tokens due to orphanRemoval = true)
+        userRepository.delete(user);
+
+        log.info("Account deleted successfully for user: {}", userId);
+    }
 }
